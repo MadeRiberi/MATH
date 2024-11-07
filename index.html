@@ -3,569 +3,303 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login, Signup, Admin, and Leaderboard</title>
+    <title>Math Relay Game - FREE TO PLAY</title>
     <style>
-        /* Reset and Base Styles */
         * {
-            box-sizing: border-box;
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
         }
 
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            position: relative;
-            min-height: 100vh;
-        }
-
-        /* Leaderboard Styles */
-        .leaderboard {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            background-color: #fff;
-            padding: 15px;
-            border: 2px solid #333;
-            width: 250px;
-            max-width: 90%;
-            height: 400px;
-            overflow-y: auto;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-            border-radius: 10px;
-            z-index: 1000;
-        }
-
-        .leaderboard .header {
-            margin-bottom: 10px;
-        }
-
-        .leaderboard .header h3 {
-            font-size: 22px;
-            color: #333;
-            margin-bottom: 5px;
-        }
-
-        .leaderboard .header p {
-            font-size: 16px;
-            color: #555;
-            margin-bottom: 15px;
+            background-color: #f1f1f1;
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
         }
 
-        .leaderboard ul {
-            list-style: none;
-            padding: 0;
-        }
-
-        .leaderboard li {
-            display: flex;
-            justify-content: space-between;
-            padding: 5px;
-            border-bottom: 1px solid #ddd;
-            color: #555;
-            font-size: 14px;
-        }
-
-        /* Main Container Styles */
         .container {
-            text-align: center;
-            border: 2px solid #333;
-            padding: 30px;
-            background-color: white;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-            width: 350px;
-            max-width: 90%;
-            margin: 100px auto;
+            background-color: #fff;
+            padding: 20px;
             border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
         }
 
-        .container h2 {
+        h1 {
             margin-bottom: 20px;
-            color: #333;
         }
 
-        /* Input Fields */
-        input[type="text"], input[type="password"], input[type="email"] {
-            display: block;
-            margin: 10px auto;
-            padding: 12px;
-            width: 80%;
-            max-width: 300px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-
-        /* Buttons */
-        button {
-            padding: 12px 20px;
-            background-color: #333;
+        #start-button, #submit-answer, #back-home {
+            padding: 10px 20px;
+            font-size: 18px;
+            background-color: #4CAF50;
             color: white;
             border: none;
             cursor: pointer;
-            border-radius: 5px;
-            margin-top: 15px;
-            width: 80%;
-            max-width: 300px;
+            margin-top: 20px;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        #start-button:hover {
+            transform: scale(1.1);
+        }
+
+        #start-button:active {
+            transform: scale(0.9);
+        }
+
+        input {
+            padding: 8px;
+            margin: 5px;
             font-size: 16px;
-            transition: background-color 0.3s ease;
+            width: 80%;
         }
 
-        button:hover {
-            background-color: #555;
-        }
-
-        /* Hidden Sections */
         .hidden {
             display: none;
         }
 
-        /* Choices Section */
-        .choices {
-            margin-top: 20px;
-        }
-
-        .choices p {
-            margin-bottom: 10px;
-            color: #333;
-            font-size: 14px;
-            display: inline;
-        }
-
-        .choices button {
-            background-color: transparent;
-            color: #007BFF;
-            border: none;
-            cursor: pointer;
-            text-decoration: underline;
-            font-size: 14px;
-            padding: 0;
-            display: inline;
-            margin-left: 5px;
-        }
-
-        .choices button:hover {
-            color: #0056b3;
-        }
-
-        /* Admin Dashboard Styles */
-        #adminDashboard h2 {
-            margin-bottom: 20px;
-            color: #333;
-        }
-
-        #adminDashboard button {
-            width: 90%;
-            max-width: 280px;
-            margin: 10px auto;
-        }
-
-        /* Game Home Section */
-        #gameHomeSection {
-            display: none;
-            text-align: center;
-        }
-
-        #gameHomeSection h2 {
-            margin-top: 50px;
-            color: #333;
-        }
-
-        /* Math Relay Game Styles */
-        #mathRelayGame {
-            display: none;
-            margin-top: 20px;
-        }
-
-        /* Timer Styles */
         #timer {
             font-size: 20px;
+            margin-top: 10px;
             color: red;
-            margin-top: 10px;
         }
 
-        /* Username and Score Display */
-        #usernameScoreDisplay {
-            margin-top: 10px;
+        #wrong-answer {
+            margin-top: 20px;
+            color: red;
+            font-size: 18px;
+        }
+
+        .rules {
+            font-size: 14px;
             color: #333;
-            font-size: 16px;
+            margin-top: 15px;
+            text-align: left;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
         }
 
-        /* Responsive Styles */
-        @media (max-width: 600px) {
-            .leaderboard {
-                position: static;
-                width: 100%;
-                max-width: none;
-                height: 300px;
-                margin-bottom: 20px;
-                border-radius: 0;
-            }
+        .game-show-animation {
+            animation: fadeIn 1s ease-out forwards;
+        }
 
-            .container {
-                margin: 20px auto;
-                padding: 20px;
-                width: 100%;
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.8);
             }
-
-            input[type="text"], input[type="password"], input[type="email"] {
-                width: 90%;
-            }
-
-            button {
-                width: 90%;
-            }
-
-            .leaderboard h3 {
-                font-size: 20px;
-            }
-
-            .leaderboard li {
-                font-size: 14px;
+            100% {
+                opacity: 1;
+                transform: scale(1);
             }
         }
     </style>
 </head>
 <body>
+    <div class="container">
+        <h1>Math Relay Game</h1>
 
-<!-- Leaderboard -->
-<div class="leaderboard">
-    <div class="header">
-        <h3>LEADERBOARD</h3>
-        <p><span>Username</span><span>Points</span></p>
-    </div>
-    <ul id="leaderboardList">
-        <!-- Leaderboard entries will be dynamically added here -->
-    </ul>
-</div>
+        <!-- Login section -->
+        <div id="login">
+            <input type="text" id="username" placeholder="Enter your username">
+            <button id="login-button">Login</button>
 
-<div class="container">
-    <!-- Login Section -->
-    <div id="loginSection">
-        <h2>Login</h2>
-        <form id="loginForm">
-            <input type="text" id="loginUsername" placeholder="Username" required>
-            <input type="password" id="loginPassword" placeholder="Password" required>
-            <button type="submit">Login</button>
-        </form>
-        <div class="choices">
-            <p><button id="goToSignupBtn">Sign Up</button></p>
-            <p><button id="goToAdminLoginBtn">Admin Login</button></p>
+            <div class="rules">
+                <h3>Game Rules:</h3>
+                <ul>
+                    <h3>By : Devzz - 8A </h3>
+                    <li>Answer math questions as quickly as possible!</li>
+                    <li>Each correct answer adds to your score.</li>
+                    <li>Once time runs out or you answer incorrectly, the game ends.</li>
+                </ul>
+                <p>Good luck and have fun!</p>
+            </div>
+        </div>
+
+        <!-- Game section -->
+        <div id="game" class="hidden">
+            <h2>Welcome, <span id="user-name"></span>!</h2>
+            <p>Score: <span id="score">0</span></p>
+            <p id="question"></p>
+            <input type="number" id="answer" placeholder="Your answer">
+            <button id="submit-answer">Submit Answer</button>
+            <p id="timer">Time Remaining: <span id="time-left">10</span> seconds</p>
+        </div>
+
+        <!-- Start button -->
+        <button id="start-button" class="hidden">Start Game</button>
+
+        <!-- Incorrect Answer Section -->
+        <div id="wrong-answer" class="hidden">
+            <p>Incorrect! Your latest score: <span id="latest-score"></span></p>
+            <button id="back-home">Back to Home</button>
         </div>
     </div>
 
-    <!-- Signup Section -->
-    <div id="signupSection" class="hidden">
-        <h2>Sign Up</h2>
-        <form id="signupForm">
-            <input type="text" id="newUsername" placeholder="New Username" required>
-            <input type="email" id="email" placeholder="Gmail" required>
-            <input type="password" id="newPassword" placeholder="New Password" required>
-            <button type="submit">Sign Up</button>
-        </form>
-        <div class="choices">
-            <p>Already Have Account? <button id="goToLoginBtn">Login</button></p>
-        </div>
-    </div>
+    <!-- Audio elements for sound effects -->
+    <audio id="correct-sound" src="tada-234709.mp3" preload="auto"></audio>
+    <audio id="wrong-sound" src="fail-144746.mp3" preload="auto"></audio>
+    <audio id="times-up-sound" src="fail-144746.mp3" preload="auto"></audio>
+    <audio id="start-sound" src="Sneaky-Snitch(chosic.com).mp3" preload="auto"></audio>
 
-    <!-- Admin Login Section -->
-    <div id="adminLoginSection" class="hidden">
-        <h2>Admin Login</h2>
-        <form id="adminLoginForm">
-            <input type="text" id="adminUsername" placeholder="Admin Username" required>
-            <input type="password" id="adminPassword" placeholder="Admin Password" required>
-            <button type="submit">Login as Admin</button>
-        </form>
-        <div class="choices">
-            <button id="goToLoginBtnFromAdmin">Back to User Login</button>
-        </div>
-    </div>
+    <script>
+        const startButton = document.getElementById('start-button');
+        const gameSection = document.getElementById('game');
+        const usernameInput = document.getElementById('username');
+        const loginButton = document.getElementById('login-button');
+        const userNameDisplay = document.getElementById('user-name');
+        const scoreDisplay = document.getElementById('score');
+        const questionDisplay = document.getElementById('question');
+        const answerInput = document.getElementById('answer');
+        const submitButton = document.getElementById('submit-answer');
+        const timerDisplay = document.getElementById('time-left');
+        const wrongAnswerSection = document.getElementById('wrong-answer');
+        const latestScoreDisplay = document.getElementById('latest-score');
+        const backHomeButton = document.getElementById('back-home');
+        let score = 0;
+        let correctStreak = 0;
+        let currentQuestion;
+        let currentAnswer;
+        let timer;
+        let timeLeft = 10; // Default timer value
+        let timerInterval;
 
-    <!-- Admin Dashboard Section -->
-    <div id="adminDashboard" class="hidden">
-        <h2>Admin Dashboard</h2>
-        <button id="resetUsersBtn">Reset All Usernames and Passwords</button>
-        <button id="resetLeaderboardBtn">Reset Leaderboard</button>
-        <button id="logoutAdminBtn">Logout</button>
-    </div>
+        // Get the audio elements
+        const correctSound = document.getElementById('correct-sound');
+        const wrongSound = document.getElementById('wrong-sound');
+        const timesUpSound = document.getElementById('times-up-sound');
+        const startSound = document.getElementById('start-sound');
 
-    <!-- Game Home Section -->
-    <div id="gameHomeSection">
-        <h2>Welcome to the Game!</h2>
-        <div id="usernameScoreDisplay" class="hidden"></div>
-        <button id="startGameBtn">Start Game</button>
-        <button id="logoutUserBtn">Logout</button>
-    </div>
-
-    <!-- Math Relay Game Section -->
-    <div id="mathRelayGame">
-        <h2>Math Relay Game</h2>
-        <div id="timer">Time Left: <span id="timeLeft"></span> seconds</div>
-        <div id="questionContainer"></div>
-        <input type="text" id="answerInput" placeholder="Your Answer" required>
-        <button id="submitAnswerBtn">Submit Answer</button>
-    </div>
-</div>
-
-<script>
-    // User and leaderboard data
-    const users = {};
-    const leaderboard = [];
-    let currentUser = null;
-    let timer;
-    let timeLeft = 30; // Game time in seconds
-    let currentQuestionIndex = -1;
-
-    // Elements
-    const loginSection = document.getElementById('loginSection');
-    const signupSection = document.getElementById('signupSection');
-    const adminLoginSection = document.getElementById('adminLoginSection');
-    const adminDashboard = document.getElementById('adminDashboard');
-    const gameHomeSection = document.getElementById('gameHomeSection');
-    const mathRelayGame = document.getElementById('mathRelayGame');
-    const timerDisplay = document.getElementById('timeLeft');
-    const usernameScoreDisplay = document.getElementById('usernameScoreDisplay');
-    const leaderboardList = document.getElementById('leaderboardList');
-    
-    // Show login section on page load
-    window.onload = function() {
-        showLoginSection();
-        loadLeaderboard();
-    };
-
-    // Event Listeners
-    document.getElementById('goToSignupBtn').addEventListener('click', showSignupSection);
-    document.getElementById('goToAdminLoginBtn').addEventListener('click', showAdminLoginSection);
-    document.getElementById('goToLoginBtn').addEventListener('click', showLoginSection);
-    document.getElementById('goToLoginBtnFromAdmin').addEventListener('click', showLoginSection);
-
-    document.getElementById('loginForm').addEventListener('submit', handleLogin);
-    document.getElementById('signupForm').addEventListener('submit', handleSignup);
-    document.getElementById('adminLoginForm').addEventListener('submit', handleAdminLogin);
-    document.getElementById('resetUsersBtn').addEventListener('click', resetUsers);
-    document.getElementById('resetLeaderboardBtn').addEventListener('click', resetLeaderboard);
-    document.getElementById('logoutAdminBtn').addEventListener('click', logoutAdmin);
-    document.getElementById('startGameBtn').addEventListener('click', startGame);
-    document.getElementById('submitAnswerBtn').addEventListener('click', submitAnswer);
-    document.getElementById('logoutUserBtn').addEventListener('click', logoutUser);
-
-    // Functions
-    function showLoginSection() {
-        loginSection.classList.remove('hidden');
-        signupSection.classList.add('hidden');
-        adminLoginSection.classList.add('hidden');
-        adminDashboard.classList.add('hidden');
-        gameHomeSection.classList.add('hidden');
-        mathRelayGame.classList.add('hidden');
-        resetFormFields();
-    }
-
-    function showSignupSection() {
-        loginSection.classList.add('hidden');
-        signupSection.classList.remove('hidden');
-        adminLoginSection.classList.add('hidden');
-        adminDashboard.classList.add('hidden');
-        gameHomeSection.classList.add('hidden');
-        mathRelayGame.classList.add('hidden');
-        resetFormFields();
-    }
-
-    function showAdminLoginSection() {
-        loginSection.classList.add('hidden');
-        signupSection.classList.add('hidden');
-        adminLoginSection.classList.remove('hidden');
-        adminDashboard.classList.add('hidden');
-        gameHomeSection.classList.add('hidden');
-        mathRelayGame.classList.add('hidden');
-        resetFormFields();
-    }
-
-    function showAdminDashboard() {
-        loginSection.classList.add('hidden');
-        signupSection.classList.add('hidden');
-        adminLoginSection.classList.add('hidden');
-        adminDashboard.classList.remove('hidden');
-        gameHomeSection.classList.add('hidden');
-        mathRelayGame.classList.add('hidden');
-    }
-
-    function showGameHome() {
-        loginSection.classList.add('hidden');
-        signupSection.classList.add('hidden');
-        adminLoginSection.classList.add('hidden');
-        adminDashboard.classList.add('hidden');
-        gameHomeSection.classList.remove('hidden');
-        resetFormFields();
-    }
-
-    function startGame() {
-        gameHomeSection.classList.add('hidden');
-        mathRelayGame.classList.remove('hidden');
-        timeLeft = 30; // Reset timer
-        currentQuestionIndex = -1; // Reset question index
-        startTimer();
-        generateQuestion();
-    }
-
-    function handleLogin(event) {
-        event.preventDefault();
-        const username = document.getElementById('loginUsername').value;
-        const password = document.getElementById('loginPassword').value;
-
-        if (users[username] && users[username].password === password) {
-            currentUser = users[username];
-            showGameHome();
-            updateUsernameScoreDisplay();
-        } else {
-            alert('Incorrect username or password.');
-            resetLoginForm();
-        }
-    }
-
-    function handleSignup(event) {
-        event.preventDefault();
-        const username = document.getElementById('newUsername').value;
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('newPassword').value;
-
-        if (users[username]) {
-            alert('Username already taken. Please choose another one.');
-            resetSignupForm();
-            return;
-        }
-
-        users[username] = { email, password, points: 0 };
-        alert('Sign up successful! You can now log in.');
-        showLoginSection();
-        resetSignupForm();
-    }
-
-    function handleAdminLogin(event) {
-        event.preventDefault();
-        const username = document.getElementById('adminUsername').value;
-        const password = document.getElementById('adminPassword').value;
-
-        if (username === 'admin' && password === 'admin123') {
-            showAdminDashboard();
-        } else {
-            alert('Incorrect admin username or password.');
-            resetAdminLoginForm();
-        }
-    }
-
-    function resetUsers() {
-        for (const user in users) {
-            delete users[user];
-        }
-        alert('All usernames and passwords have been reset.');
-    }
-
-    function resetLeaderboard() {
-        leaderboard.length = 0;
-        loadLeaderboard();
-        alert('Leaderboard has been reset.');
-    }
-
-    function logoutAdmin() {
-        showAdminLoginSection();
-        resetAdminLoginForm();
-    }
-
-    function submitAnswer() {
-        const answerInput = document.getElementById('answerInput').value;
-        const currentQuestion = questions[currentQuestionIndex];
-
-        if (parseInt(answerInput) === currentQuestion.answer) {
-            currentUser.points += 1; // Increment user points
-            leaderboard.push({ username: currentUser.username, points: currentUser.points });
-            alert('Correct! Next question...');
-            resetAnswerInput();
-            generateQuestion();
-        } else {
-            alert('Incorrect answer. Try again.');
-            resetAnswerInput();
-        }
-    }
-
-    function logoutUser() {
-        currentUser = null;
-        showLoginSection();
-        resetLoginForm();
-    }
-
-    function startTimer() {
-        timerDisplay.textContent = timeLeft;
-        timer = setInterval(() => {
-            timeLeft--;
-            timerDisplay.textContent = timeLeft;
-
-            if (timeLeft <= 0) {
-                clearInterval(timer);
-                alert('Time is up! Game over.');
-                logoutUser();
+        // Event to login
+        loginButton.addEventListener('click', function() {
+            const username = usernameInput.value;
+            if (username) {
+                document.getElementById('login').classList.add('hidden');
+                startButton.classList.remove('hidden');
+                userNameDisplay.textContent = username;
+            } else {
+                alert('Please enter a username!');
             }
-        }, 1000);
-    }
-
-    function generateQuestion() {
-        const question = getRandomQuestion();
-        currentQuestionIndex = question.index;
-        document.getElementById('questionContainer').innerHTML = `What is ${question.text}?`;
-    }
-
-    function getRandomQuestion() {
-        const questions = [
-            { text: '5 + 3', answer: 8 },
-            { text: '10 - 4', answer: 6 },
-            { text: '7 * 2', answer: 14 },
-            { text: '20 / 4', answer: 5 },
-            { text: '9 + 6', answer: 15 }
-        ];
-        const index = Math.floor(Math.random() * questions.length);
-        return { ...questions[index], index };
-    }
-
-    function resetFormFields() {
-        const fields = document.querySelectorAll('input[type="text"], input[type="password"], input[type="email"]');
-        fields.forEach(field => field.value = '');
-    }
-
-    function resetLoginForm() {
-        document.getElementById('loginUsername').value = '';
-        document.getElementById('loginPassword').value = '';
-    }
-
-    function resetSignupForm() {
-        document.getElementById('newUsername').value = '';
-        document.getElementById('email').value = '';
-        document.getElementById('newPassword').value = '';
-    }
-
-    function resetAdminLoginForm() {
-        document.getElementById('adminUsername').value = '';
-        document.getElementById('adminPassword').value = '';
-    }
-
-    function resetAnswerInput() {
-        document.getElementById('answerInput').value = '';
-    }
-
-    function loadLeaderboard() {
-        leaderboardList.innerHTML = '';
-        leaderboard.forEach(entry => {
-            const li = document.createElement('li');
-            li.textContent = `${entry.username} - ${entry.points}`;
-            leaderboardList.appendChild(li);
         });
-    }
 
-    function updateUsernameScoreDisplay() {
-        usernameScoreDisplay.textContent = `Username: ${currentUser.username} | Points: ${currentUser.points}`;
-        usernameScoreDisplay.classList.remove('hidden');
-    }
-</script>
+        // Start game
+        startButton.addEventListener('click', function() {
+            startSound.play(); // Play start game sound
+            startButton.classList.add('hidden');
+            gameSection.classList.remove('hidden');
+            gameSection.classList.add('game-show-animation'); // Add animation class
+            score = 0;
+            correctStreak = 0; // Reset streak
+            scoreDisplay.textContent = score;
+            timeLeft = 10; // Reset timer
+            timerDisplay.textContent = timeLeft;
+            nextQuestion();
+            startTimer();
 
+            // Automatically focus on the answer input field
+            answerInput.focus();
+        });
+
+        // Generate next question (addition, subtraction, multiplication, division)
+        function nextQuestion() {
+            const num1 = Math.floor(Math.random() * 10) + 1;
+            const num2 = Math.floor(Math.random() * 10) + 1;
+            const operations = ['+', '-', '*', '/'];
+            const operation = operations[Math.floor(Math.random() * operations.length)];
+            let questionText;
+
+            if (operation === '+') {
+                currentAnswer = num1 + num2;
+                questionText = `What is ${num1} + ${num2}?`;
+            } else if (operation === '-') {
+                currentAnswer = num1 - num2;
+                questionText = `What is ${num1} - ${num2}?`;
+            } else if (operation === '*') {
+                currentAnswer = num1 * num2;
+                questionText = `What is ${num1} * ${num2}?`;
+            } else if (operation === '/') {
+                // Ensure division results in a whole number
+                if (num1 % num2 === 0) {
+                    currentAnswer = num1 / num2;
+                } else {
+                    // If not, generate a new set of numbers
+                    nextQuestion();
+                    return;
+                }
+                questionText = `What is ${num1} ÷ ${num2}?`;
+            }
+
+            questionDisplay.textContent = questionText;
+        }
+
+        // Submit answer
+        submitButton.addEventListener('click', function() {
+            submitAnswer();
+        });
+
+        // Listen for Enter key press to submit answer
+        answerInput.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                submitAnswer();
+            }
+        });
+
+        // Submit and check answer
+        function submitAnswer() {
+            const answer = parseInt(answerInput.value);
+            if (answer === currentAnswer) {
+                correctSound.play(); // Play correct answer sound
+                score += 1;
+                correctStreak += 1;
+                scoreDisplay.textContent = score;
+                nextQuestion();
+                resetTimer();
+            } else {
+                wrongSound.play(); // Play wrong answer sound
+                showWrongAnswer();
+            }
+            answerInput.value = ''; // Clear the answer input field
+        }
+
+        // Timer functionality
+        function startTimer() {
+            timerInterval = setInterval(function() {
+                timeLeft--;
+                timerDisplay.textContent = timeLeft;
+                if (timeLeft === 0) {
+                    timesUpSound.play(); // Play times up sound
+                    showWrongAnswer();
+                }
+            }, 1000);
+        }
+
+        // Reset the timer
+        function resetTimer() {
+            clearInterval(timerInterval);
+            timeLeft = 10; // Reset to 10 seconds
+            timerDisplay.textContent = timeLeft;
+            startTimer();
+        }
+
+        // Show wrong answer section
+        function showWrongAnswer() {
+            latestScoreDisplay.textContent = score;
+            gameSection.classList.add('hidden');
+            wrongAnswerSection.classList.remove('hidden');
+        }
+
+        // Back to home
+        backHomeButton.addEventListener('click', function() {
+            window.location.reload(); // Reload to go back to the login page
+        });
+    </script>
 </body>
 </html>
