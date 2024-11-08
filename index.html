@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Math Relay Game - FREE TO PLAY</title>
+    <title>Math Relay Game</title>
     <style>
+        /* Basic reset and styling */
         * {
             margin: 0;
             padding: 0;
@@ -101,30 +102,35 @@
                 transform: scale(1);
             }
         }
+
+        #question {
+            font-size: 40px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Math Relay Game</h1>
 
-        <!-- Login section -->
         <div id="login">
             <input type="text" id="username" placeholder="Enter your username">
             <button id="login-button">Login</button>
-
+            
             <div class="rules">
                 <h3>Game Rules:</h3>
                 <ul>
-                    <h3>By : Devzz - 8A </h3>
                     <li>Answer math questions as quickly as possible!</li>
                     <li>Each correct answer adds to your score.</li>
+                    <li>If you answer correctly in a streak, the timer will decrease for faster challenges.</li>
+                    <li>You have a limited amount of time to answer each question.</li>
                     <li>Once time runs out or you answer incorrectly, the game ends.</li>
                 </ul>
                 <p>Good luck and have fun!</p>
             </div>
         </div>
 
-        <!-- Game section -->
         <div id="game" class="hidden">
             <h2>Welcome, <span id="user-name"></span>!</h2>
             <p>Score: <span id="score">0</span></p>
@@ -134,21 +140,24 @@
             <p id="timer">Time Remaining: <span id="time-left">10</span> seconds</p>
         </div>
 
-        <!-- Start button -->
         <button id="start-button" class="hidden">Start Game</button>
 
-        <!-- Incorrect Answer Section -->
         <div id="wrong-answer" class="hidden">
             <p>Incorrect! Your latest score: <span id="latest-score"></span></p>
             <button id="back-home">Back to Home</button>
         </div>
+
+        <div id="countdown" class="hidden">
+            <p>Game starting in <span id="countdown-timer">3</span> seconds...</p>
+        </div>
     </div>
 
-    <!-- Audio elements for sound effects -->
     <audio id="correct-sound" src="tada-234709.mp3" preload="auto"></audio>
     <audio id="wrong-sound" src="fail-144746.mp3" preload="auto"></audio>
     <audio id="times-up-sound" src="fail-144746.mp3" preload="auto"></audio>
     <audio id="start-sound" src="Sneaky-Snitch(chosic.com).mp3" preload="auto"></audio>
+    <audio id="background-sound" src="background.mp3" preload="auto" loop></audio>
+    <audio id="countdown-sound" src="robotic-countdown-43935.mp3" preload="auto"></audio>
 
     <script>
         const startButton = document.getElementById('start-button');
@@ -164,141 +173,155 @@
         const wrongAnswerSection = document.getElementById('wrong-answer');
         const latestScoreDisplay = document.getElementById('latest-score');
         const backHomeButton = document.getElementById('back-home');
+        const countdownDisplay = document.getElementById('countdown');
+        const countdownTimer = document.getElementById('countdown-timer');
         let score = 0;
-        let correctStreak = 0;
-        let currentQuestion;
         let currentAnswer;
-        let timer;
-        let timeLeft = 10; // Default timer value
         let timerInterval;
+        let timeLeft = 10;
+        let isNameRead = false;
 
-        // Get the audio elements
         const correctSound = document.getElementById('correct-sound');
         const wrongSound = document.getElementById('wrong-sound');
         const timesUpSound = document.getElementById('times-up-sound');
         const startSound = document.getElementById('start-sound');
+        const backgroundSound = document.getElementById('background-sound');
+        const countdownSound = document.getElementById('countdown-sound');
 
-        // Event to login
         loginButton.addEventListener('click', function() {
             const username = usernameInput.value;
             if (username) {
                 document.getElementById('login').classList.add('hidden');
-                startButton.classList.remove('hidden');
                 userNameDisplay.textContent = username;
+                readUsername(username);
             } else {
                 alert('Please enter a username!');
             }
         });
 
-        // Start game
+        function readUsername(username) {
+            const speech = new SpeechSynthesisUtterance();
+            speech.text = "Welcome, " + username;
+            speech.onend = function() {
+                isNameRead = true;
+                startButton.classList.remove('hidden');
+            };
+            window.speechSynthesis.speak(speech);
+        }
+
         startButton.addEventListener('click', function() {
-            startSound.play(); // Play start game sound
+            if (!isNameRead) return;
+            backgroundSound.pause();
+            backgroundSound.currentTime = 0;
             startButton.classList.add('hidden');
-            gameSection.classList.remove('hidden');
-            gameSection.classList.add('game-show-animation'); // Add animation class
-            score = 0;
-            correctStreak = 0; // Reset streak
-            scoreDisplay.textContent = score;
-            timeLeft = 10; // Reset timer
-            timerDisplay.textContent = timeLeft;
+            countdownDisplay.classList.remove('hidden');
+            countdownSound.play();
+
+            let countdownTime = 3;
+            countdownTimer.textContent = countdownTime;
+
+            let countdownInterval = setInterval(function() {
+                countdownTime--;
+                countdownTimer.textContent = countdownTime;
+                if (countdownTime <= 0) {
+                    clearInterval(countdownInterval);
+                    startSound.play();
+                    gameSection.classList.remove('hidden');
+                    startGame();
+                }
+            }, 1000);
+        });
+
+        function startGame() {
             nextQuestion();
             startTimer();
-
-            // Automatically focus on the answer input field
-            answerInput.focus();
-        });
-
-        // Generate next question (addition, subtraction, multiplication, division)
-        function nextQuestion() {
-            const num1 = Math.floor(Math.random() * 10) + 1;
-            const num2 = Math.floor(Math.random() * 10) + 1;
-            const operations = ['+', '-', '*', '/'];
-            const operation = operations[Math.floor(Math.random() * operations.length)];
-            let questionText;
-
-            if (operation === '+') {
-                currentAnswer = num1 + num2;
-                questionText = `What is ${num1} + ${num2}?`;
-            } else if (operation === '-') {
-                currentAnswer = num1 - num2;
-                questionText = `What is ${num1} - ${num2}?`;
-            } else if (operation === '*') {
-                currentAnswer = num1 * num2;
-                questionText = `What is ${num1} * ${num2}?`;
-            } else if (operation === '/') {
-                // Ensure division results in a whole number
-                if (num1 % num2 === 0) {
-                    currentAnswer = num1 / num2;
-                } else {
-                    // If not, generate a new set of numbers
-                    nextQuestion();
-                    return;
-                }
-                questionText = `What is ${num1} ÷ ${num2}?`;
-            }
-
-            questionDisplay.textContent = questionText;
+            backgroundSound.play();
+            answerInput.focus();  // Focus on the answer input when game starts
         }
 
-        // Submit answer
-        submitButton.addEventListener('click', function() {
-            submitAnswer();
-        });
-
-        // Listen for Enter key press to submit answer
-        answerInput.addEventListener('keydown', function(event) {
-            if (event.key === 'Enter') {
-                submitAnswer();
-            }
-        });
-
-        // Submit and check answer
-        function submitAnswer() {
-            const answer = parseInt(answerInput.value);
-            if (answer === currentAnswer) {
-                correctSound.play(); // Play correct answer sound
-                score += 1;
-                correctStreak += 1;
-                scoreDisplay.textContent = score;
-                nextQuestion();
-                resetTimer();
-            } else {
-                wrongSound.play(); // Play wrong answer sound
-                showWrongAnswer();
-            }
-            answerInput.value = ''; // Clear the answer input field
-        }
-
-        // Timer functionality
         function startTimer() {
+            timeLeft = 10;
+            timerDisplay.textContent = timeLeft;
+
             timerInterval = setInterval(function() {
                 timeLeft--;
                 timerDisplay.textContent = timeLeft;
-                if (timeLeft === 0) {
-                    timesUpSound.play(); // Play times up sound
-                    showWrongAnswer();
+
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    timesUpSound.play();
+                    backgroundSound.play();  // Play background sound on time up
+                    stopAllSounds();
+                    wrongAnswerSection.classList.remove('hidden');
+                    latestScoreDisplay.textContent = score;
+                    setTimeout(resetGame, 2000);
                 }
             }, 1000);
         }
 
-        // Reset the timer
+        function nextQuestion() {
+            const num1 = Math.floor(Math.random() * 10) + 1;
+            const num2 = Math.floor(Math.random() * 10) + 1;
+            currentAnswer = num1 + num2;
+
+            questionDisplay.textContent = `${num1} + ${num2} = ?`;
+            answerInput.value = ''; // Reset the answer input when moving to the next question
+        }
+
+        submitButton.addEventListener('click', function() {
+            const userAnswer = parseInt(answerInput.value);
+            if (userAnswer === currentAnswer) {
+                correctSound.play();
+                score++;
+                scoreDisplay.textContent = score;
+                resetTimer();
+                nextQuestion();
+            } else {
+                wrongSound.play();
+                backgroundSound.play();  // Play background sound on wrong answer
+                stopAllSounds();
+                wrongAnswerSection.classList.remove('hidden');
+                latestScoreDisplay.textContent = score;
+                setTimeout(resetGame, 2000);
+            }
+        });
+
+        answerInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                submitButton.click();  // Simulate a button click when Enter is pressed
+            }
+        });
+
         function resetTimer() {
             clearInterval(timerInterval);
-            timeLeft = 10; // Reset to 10 seconds
-            timerDisplay.textContent = timeLeft;
-            startTimer();
+            startTimer();  // Reset the timer when the answer is correct
         }
 
-        // Show wrong answer section
-        function showWrongAnswer() {
-            latestScoreDisplay.textContent = score;
+        function stopAllSounds() {
+            correctSound.pause();
+
+            startSound.pause();
+            backgroundSound.pause();
+            countdownSound.pause();
+
+            correctSound.currentTime = 0;
+            wrongSound.currentTime = 0;
+            timesUpSound.currentTime = 0;
+            startSound.currentTime = 0;
+            backgroundSound.currentTime = 0;
+            countdownSound.currentTime = 0;
+        }
+
+        function resetGame() {
+            score = 0;
+            scoreDisplay.textContent = score;
+            wrongAnswerSection.classList.add('hidden');
             gameSection.classList.add('hidden');
-            wrongAnswerSection.classList.remove('hidden');
+            document.getElementById('login').classList.remove('hidden');
         }
 
-        // Back to home
         backHomeButton.addEventListener('click', function() {
-            window.location.reload(); // Reload to go back to the login page
+            resetGame();
         });
     </script>
 </body>
