@@ -71,6 +71,10 @@
             color: red;
         }
 
+        #score {
+            font-size: 24px; /* Increased font size for the score */
+        }
+
         #wrong-answer {
             margin-top: 20px;
             color: red;
@@ -236,7 +240,7 @@
             nextQuestion();
             startTimer();
             backgroundSound.play();
-            answerInput.focus();  // Focus on the answer input when game starts
+            answerInput.focus();
         }
 
         function startTimer() {
@@ -250,22 +254,39 @@
                 if (timeLeft <= 0) {
                     clearInterval(timerInterval);
                     timesUpSound.play();
-                    backgroundSound.play();  // Play background sound on time up
-                    stopAllSounds();
-                    wrongAnswerSection.classList.remove('hidden');
-                    latestScoreDisplay.textContent = score;
-                    setTimeout(resetGame, 2000);
+                    startSound.pause(); // Pause the Sneaky Snitch sound if time is up
+                    showGameOver();
                 }
             }, 1000);
         }
 
         function nextQuestion() {
-            const num1 = Math.floor(Math.random() * 10) + 1;
-            const num2 = Math.floor(Math.random() * 10) + 1;
-            currentAnswer = num1 + num2;
+            let num1, num2, operation;
+            do {
+                num1 = Math.floor(Math.random() * 10) + 1;
+                num2 = Math.floor(Math.random() * 10) + 1;
+                operation = ['+', '-', '*', '/'][Math.floor(Math.random() * 4)];
+            } while (operation === '/' && num1 % num2 !== 0);
 
-            questionDisplay.textContent = `${num1} + ${num2} = ?`;
-            answerInput.value = ''; // Reset the answer input when moving to the next question
+            switch (operation) {
+                case '+':
+                    currentAnswer = num1 + num2;
+                    questionDisplay.textContent = `${num1} + ${num2} = ?`;
+                    break;
+                case '-':
+                    currentAnswer = num1 - num2;
+                    questionDisplay.textContent = `${num1} - ${num2} = ?`;
+                    break;
+                case '*':
+                    currentAnswer = num1 * num2;
+                    questionDisplay.textContent = `${num1} × ${num2} = ?`;
+                    break;
+                case '/':
+                    currentAnswer = num1 / num2;
+                    questionDisplay.textContent = `${num1} ÷ ${num2} = ?`;
+                    break;
+            }
+            answerInput.value = '';
         }
 
         submitButton.addEventListener('click', function() {
@@ -278,39 +299,33 @@
                 nextQuestion();
             } else {
                 wrongSound.play();
-                backgroundSound.play();  // Play background sound on wrong answer
-                stopAllSounds();
-                wrongAnswerSection.classList.remove('hidden');
-                latestScoreDisplay.textContent = score;
-                setTimeout(resetGame, 2000);
+                startSound.pause(); // Pause the Sneaky Snitch sound if answer is wrong
+                showGameOver();
             }
         });
 
         answerInput.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
-                submitButton.click();  // Simulate a button click when Enter is pressed
+                submitButton.click();
             }
         });
 
         function resetTimer() {
             clearInterval(timerInterval);
-            startTimer();  // Reset the timer when the answer is correct
+            startTimer();
         }
 
-        function stopAllSounds() {
-            correctSound.pause();
-
-            startSound.pause();
-            backgroundSound.pause();
-            countdownSound.pause();
-
-            correctSound.currentTime = 0;
-            wrongSound.currentTime = 0;
-            timesUpSound.currentTime = 0;
-            startSound.currentTime = 0;
-            backgroundSound.currentTime = 0;
-            countdownSound.currentTime = 0;
+        function showGameOver() {
+            clearInterval(timerInterval);
+            latestScoreDisplay.textContent = score;
+            wrongAnswerSection.classList.remove('hidden');
+            gameSection.classList.add('hidden');
+            backgroundSound.play();
         }
+
+        backHomeButton.addEventListener('click', function() {
+            resetGame();
+        });
 
         function resetGame() {
             score = 0;
@@ -318,11 +333,8 @@
             wrongAnswerSection.classList.add('hidden');
             gameSection.classList.add('hidden');
             document.getElementById('login').classList.remove('hidden');
+            backgroundSound.pause();
         }
-
-        backHomeButton.addEventListener('click', function() {
-            resetGame();
-        });
     </script>
 </body>
 </html>
